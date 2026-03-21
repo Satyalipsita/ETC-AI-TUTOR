@@ -378,19 +378,41 @@
 <div class="main">
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-label">Subjects</div>
-    <button class="topic-btn active" onclick="setTopic(this,'Analog Electronics')"><span class="topic-icon">〜</span> Analog Electronics</button>
+
+    <div class="sidebar-label">Core Electronics</div>
+    <button class="topic-btn active" onclick="setTopic(this,'Basic Electronics')"><span class="topic-icon">⚛</span> Basic Electronics</button>
+    <button class="topic-btn" onclick="setTopic(this,'Electronic Components & Materials')"><span class="topic-icon">◈</span> Components &amp; Materials</button>
+    <button class="topic-btn" onclick="setTopic(this,'Electronic Devices & Circuits')"><span class="topic-icon">〜</span> Devices &amp; Circuits (EDC)</button>
+    <button class="topic-btn" onclick="setTopic(this,'Analog Electronics')"><span class="topic-icon">∿</span> Analog Electronics</button>
+    <button class="topic-btn" onclick="setTopic(this,'Linear Integrated Circuits')"><span class="topic-icon">⊞</span> Linear ICs (LIC)</button>
+
+    <div class="sidebar-label" style="margin-top:8px;">Digital &amp; Computing</div>
     <button class="topic-btn" onclick="setTopic(this,'Digital Electronics')"><span class="topic-icon">#</span> Digital Electronics</button>
-    <button class="topic-btn" onclick="setTopic(this,'Signals & Systems')"><span class="topic-icon">∿</span> Signals & Systems</button>
-    <button class="topic-btn" onclick="setTopic(this,'Communication Systems')"><span class="topic-icon">📡</span> Communication Systems</button>
-    <button class="topic-btn" onclick="setTopic(this,'Electromagnetic Fields')"><span class="topic-icon">⊛</span> EM Theory</button>
-    <button class="topic-btn" onclick="setTopic(this,'Microwave Engineering')"><span class="topic-icon">⌥</span> Microwave Engg.</button>
+    <button class="topic-btn" onclick="setTopic(this,'Computer Fundamentals')"><span class="topic-icon">💻</span> Computer Fundamentals</button>
+    <button class="topic-btn" onclick="setTopic(this,'Microprocessor & Microcontroller')"><span class="topic-icon">⬡</span> Microprocessor &amp; µC</button>
+    <button class="topic-btn" onclick="setTopic(this,'Embedded Systems')"><span class="topic-icon">⬢</span> Embedded Systems</button>
     <button class="topic-btn" onclick="setTopic(this,'VLSI Design')"><span class="topic-icon">▦</span> VLSI Design</button>
+
+    <div class="sidebar-label" style="margin-top:8px;">Electrical &amp; Control</div>
+    <button class="topic-btn" onclick="setTopic(this,'Electrical Machines')"><span class="topic-icon">⚙</span> Electrical Machines</button>
     <button class="topic-btn" onclick="setTopic(this,'Control Systems')"><span class="topic-icon">⟳</span> Control Systems</button>
-    <button class="topic-btn" onclick="setTopic(this,'Antenna & Wave Propagation')"><span class="topic-icon">↟</span> Antenna & Propagation</button>
+
+    <div class="sidebar-label" style="margin-top:8px;">Communication Systems</div>
+    <button class="topic-btn" onclick="setTopic(this,'Basic Communication Engineering')"><span class="topic-icon">📶</span> Basic Communication</button>
+    <button class="topic-btn" onclick="setTopic(this,'Communication Engineering I')"><span class="topic-icon">📡</span> Communication Engg. I</button>
+    <button class="topic-btn" onclick="setTopic(this,'Communication Engineering II')"><span class="topic-icon">📡</span> Communication Engg. II</button>
+    <button class="topic-btn" onclick="setTopic(this,'Digital Communication')"><span class="topic-icon">≋</span> Digital Communication</button>
+    <button class="topic-btn" onclick="setTopic(this,'Optical Fiber Communication')"><span class="topic-icon">💡</span> Optical Fiber Comm.</button>
+    <button class="topic-btn" onclick="setTopic(this,'Microwave & Radar Engineering')"><span class="topic-icon">⌥</span> Microwave &amp; Radar</button>
+
+    <div class="sidebar-label" style="margin-top:8px;">Network &amp; Theory</div>
     <button class="topic-btn" onclick="setTopic(this,'Network Theory')"><span class="topic-icon">◉</span> Network Theory</button>
-    <button class="topic-btn" onclick="setTopic(this,'Embedded Systems')"><span class="topic-icon">⬡</span> Embedded Systems</button>
-    <button class="topic-btn" onclick="setTopic(this,'DSP')"><span class="topic-icon">≋</span> DSP</button>
+    <button class="topic-btn" onclick="setTopic(this,'Network Communication')"><span class="topic-icon">🔗</span> Network Communication</button>
+
+    <div class="sidebar-label" style="margin-top:8px;">Power &amp; Industrial</div>
+    <button class="topic-btn" onclick="setTopic(this,'Power Electronics')"><span class="topic-icon">⚡</span> Power Electronics</button>
+    <button class="topic-btn" onclick="setTopic(this,'Industrial Electronics')"><span class="topic-icon">🏭</span> Industrial Electronics</button>
+    <button class="topic-btn" onclick="setTopic(this,'Entrepreneurship Development')"><span class="topic-icon">💼</span> Entrepreneurship Dev.</button>
 
     <div class="sidebar-label" style="margin-top:12px;">Voice</div>
     <div style="padding:8px 12px;">
@@ -459,21 +481,32 @@
 const API_BASE = '';
 
 const TOPICS = {
-  'Analog Electronics':        ['Explain BJT biasing','What is an op-amp?','Describe Class A amplifier'],
-  'Digital Electronics':       ['Explain flip-flops','What is a Karnaugh map?','Describe CMOS logic'],
-  'Signals & Systems':         ['What is convolution?','Explain Fourier Transform','LTI system basics'],
-  'Communication Systems':     ['Explain AM vs FM','What is OFDM?','Describe PCM'],
-  'Electromagnetic Fields':    ["State Maxwell's equations","Explain Gauss's law",'What is skin effect?'],
-  'Microwave Engineering':     ['What is a waveguide?','Explain S-parameters','Describe a klystron'],
-  'VLSI Design':               ['Explain CMOS inverter','What is DRC?','Describe standard cell design'],
-  'Control Systems':           ['Explain PID control','What is Bode plot?','Describe root locus'],
-  'Antenna & Wave Propagation':['Explain radiation pattern','What is VSWR?','Describe Friis equation'],
-  'Network Theory':            ['Explain Thevenin theorem','What are two-port networks?','Describe Z-parameters'],
-  'Embedded Systems':          ['What is RTOS?','Explain I2C protocol','Describe ADC conversion'],
-  'DSP':                       ['Explain DFT vs FFT','What is FIR filter?','Describe windowing techniques']
+  'Basic Electronics':                ['What is Ohm\'s law?','Explain PN junction diode','What is Kirchhoff\'s law?'],
+  'Electronic Components & Materials':['Types of resistors','What is a capacitor?','Explain semiconductor materials'],
+  'Electronic Devices & Circuits':    ['Explain BJT operation','What is a JFET?','Describe diode characteristics'],
+  'Analog Electronics':               ['Explain BJT biasing','What is an op-amp?','Describe Class A amplifier'],
+  'Linear Integrated Circuits':       ['What is 741 op-amp?','Explain voltage regulator IC','Describe timer IC 555'],
+  'Digital Electronics':              ['Explain flip-flops','What is a Karnaugh map?','Describe CMOS logic'],
+  'Computer Fundamentals':            ['What is a CPU?','Explain memory types','What is an operating system?'],
+  'Microprocessor & Microcontroller': ['Explain 8085 architecture','What is an interrupt?','Describe I2C protocol'],
+  'Embedded Systems':                 ['What is RTOS?','Explain ADC conversion','Describe PWM signal'],
+  'VLSI Design':                      ['Explain CMOS inverter','What is DRC?','Describe standard cell design'],
+  'Electrical Machines':              ['Explain DC motor','What is a transformer?','Describe induction motor'],
+  'Control Systems':                  ['Explain PID control','What is Bode plot?','Describe root locus'],
+  'Basic Communication Engineering':  ['What is modulation?','Explain AM signal','What is bandwidth?'],
+  'Communication Engineering I':      ['Explain FM modulation','What is SNR?','Describe superheterodyne receiver'],
+  'Communication Engineering II':     ['What is OFDM?','Explain digital modulation','Describe multiplexing'],
+  'Digital Communication':            ['Explain PCM','What is ASK FSK PSK?','Describe Shannon theorem'],
+  'Optical Fiber Communication':      ['What is optical fiber?','Explain types of fiber','What is dispersion?'],
+  'Microwave & Radar Engineering':    ['What is a waveguide?','Explain S-parameters','How does radar work?'],
+  'Network Theory':                   ['Explain Thevenin theorem','What are two-port networks?','Describe Z-parameters'],
+  'Network Communication':            ['What is TCP/IP?','Explain OSI model','Describe network topologies'],
+  'Power Electronics':                ['What is a thyristor?','Explain rectifier circuits','Describe inverter operation'],
+  'Industrial Electronics':           ['What is a PLC?','Explain industrial sensors','Describe motor drives'],
+  'Entrepreneurship Development':     ['What is entrepreneurship?','Explain business plan','What is market analysis?']
 };
 
-let currentTopic = 'Analog Electronics';
+let currentTopic = 'Basic Electronics';
 let isRecording  = false;
 let recognition  = null;
 let speechSynth  = window.speechSynthesis;
@@ -494,8 +527,8 @@ function setTopic(btn, topic) {
   currentTopic = topic;
   document.getElementById('topicLabel').textContent = 'TOPIC: ' + topic.toUpperCase();
   updateQuickPrompts();
-  addMessage('ai', `Switched to **${topic}**. What would you like to learn?`);
-  speak(`Now tutoring ${topic}. What would you like to learn?`);
+  addMessage('ai', `Switched to ${topic}. What would you like to learn?`);
+  // no speak() on topic switch
 }
 
 function updateQuickPrompts() {
@@ -520,10 +553,14 @@ function addMessage(role, text, isLoading=false, imageDataUrl=null) {
     bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
     div.id = 'loadingMsg';
   } else {
-    bubble.innerHTML = text
-      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-      .replace(/`([^`]+)`/g,'<code>$1</code>')
-      .replace(/\n/g,'<br>');
+    // Strip markdown symbols then format bold/code for display
+    let cleaned = text
+      .replace(/#{1,6}\s*/g, '')          // remove ## headings
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '$1')         // remove single * italic markers
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\n/g, '<br>');
+    bubble.innerHTML = cleaned;
     if (imageDataUrl) {
       const img = document.createElement('img');
       img.src = imageDataUrl; img.className = 'preview'; img.alt = 'attached';
@@ -599,7 +636,7 @@ async function processMessage(userText, imageBase64=null) {
     removeLoading();
     conversationHistory.push({role:'assistant',content:reply});
     addMessage('ai', reply);
-    speak(reply.replace(/<[^>]+>/g,'').replace(/\*\*/g,'').replace(/`/g,''));
+    // Text queries → display only, no voice readout
   } catch(err) {
     removeLoading();
     addMessage('ai',`⚠️ ${err.message}`);
@@ -662,7 +699,14 @@ async function processVoiceMessage(transcript) {
     removeLoading();
     conversationHistory.push({role:'assistant',content:reply});
     addMessage('ai', reply);
-    speak(reply.replace(/<[^>]+>/g,'').replace(/\*\*/g,'').replace(/`/g,''));
+    // Voice query → read the reply aloud (strip all markdown symbols for clean speech)
+    const spokenText = reply
+      .replace(/#{1,6}\s*/g,'')
+      .replace(/\*\*(.*?)\*\*/g,'$1')
+      .replace(/\*(.*?)\*/g,'$1')
+      .replace(/`([^`]+)`/g,'$1')
+      .replace(/\n/g,' ');
+    speak(spokenText);
   } catch(err) {
     removeLoading(); addMessage('ai',`⚠️ ${err.message}`); showToast(err.message);
   }
@@ -690,12 +734,11 @@ if (speechSynth.onvoiceschanged !== undefined) speechSynth.onvoiceschanged = () 
 function init() {
   updateQuickPrompts();
   addMessage('ai',
-    `Welcome to **ECE AI Tutor** — DRIEMS Polytechnic 🎓\n\n` +
-    `I'm your AI-powered tutor for **Electronics & Telecommunication Engineering**.\n` +
-    `Ask me anything, speak via mic 🎙️, or attach a **circuit diagram / waveform** 📎.\n\n` +
-    `Currently loaded: **${currentTopic}**. Select a subject from the sidebar!`
+    `Welcome to ECE AI Tutor — DRIEMS Polytechnic!\n\n` +
+    `I am your AI-powered tutor for Electronics and Telecommunication Engineering.\n` +
+    `Ask me anything by typing, speak via mic, or attach a circuit diagram or waveform image.\n\n` +
+    `Currently loaded: ${currentTopic}. Select a subject from the sidebar to begin!`
   );
-  speak('Welcome to ECE AI Tutor at DRIEMS Polytechnic! Ask me anything about Electronics and Telecommunication Engineering.');
   setStatus('active');
   setTimeout(() => setStatus(''), 2000);
 }
