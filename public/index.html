@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETC AI Tutor — DRIEMS POLYTECHNIC</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   :root {
     --bg:       #06090f;
@@ -332,16 +334,233 @@
 
   .footer-divider { width:1px; height:14px; background:var(--border); }
 
-  #toast {
-    position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
-    background:#160610; border:1px solid var(--danger);
-    color:var(--danger); font-family:'Space Mono',monospace; font-size:12px;
-    padding:10px 20px; border-radius:10px; z-index:999;
-    display:none; animation:fadeUp 0.3s ease;
+  /* ── AUTH SCREEN ── */
+  #authScreen {
+    position:fixed;inset:0;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg);
+    backdrop-filter:blur(0);
   }
-</style>
+  #authScreen::before {
+    content:'';position:fixed;inset:0;z-index:0;
+    background-image:
+      linear-gradient(rgba(0,200,83,0.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,200,83,0.025) 1px,transparent 1px);
+    background-size:44px 44px;pointer-events:none;
+  }
+  .auth-card {
+    position:relative;z-index:1;
+    background:var(--surface);border:1px solid rgba(0,200,83,0.25);
+    border-radius:18px;padding:40px 36px;width:92%;max-width:420px;
+    box-shadow:0 0 60px rgba(0,200,83,0.08);
+    animation:fadeUp 0.5s ease both;
+  }
+  .auth-logo-row {
+    display:flex;align-items:center;gap:10px;margin-bottom:6px;
+  }
+  .auth-logo-icon {
+    width:38px;height:38px;border-radius:9px;
+    background:rgba(0,200,83,0.12);border:1.5px solid rgba(0,200,83,0.4);
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  }
+  .auth-logo-text {
+    font-family:'Space Mono',monospace;font-size:1rem;color:var(--accent);letter-spacing:0.05em;
+  }
+  .auth-college {
+    font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);
+    letter-spacing:0.08em;margin-bottom:24px;
+  }
+  .auth-title {
+    font-family:'Space Mono',monospace;font-size:1rem;color:var(--text);
+    margin-bottom:4px;letter-spacing:0.04em;
+  }
+  .auth-sub {
+    font-size:0.82rem;color:var(--muted);line-height:1.55;margin-bottom:26px;
+  }
+  .auth-sub strong{color:var(--accent);}
+
+  .google-btn {
+    width:100%;padding:12px;border-radius:10px;
+    border:1px solid rgba(0,200,83,0.3);
+    background:rgba(0,200,83,0.06);color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:all 0.2s;
+  }
+  .google-btn:hover{background:rgba(0,200,83,0.12);border-color:var(--accent);transform:translateY(-1px);}
+  .google-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .g-icon{width:18px;height:18px;flex-shrink:0;}
+
+  .auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+  .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .auth-divider span{font-size:0.68rem;color:var(--muted);font-family:'Space Mono',monospace;}
+
+  .auth-input {
+    width:100%;padding:11px 13px;border-radius:9px;
+    border:1px solid var(--border);background:var(--surface2);
+    color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;
+    outline:none;transition:border-color 0.2s;margin-bottom:9px;
+  }
+  .auth-input:focus{border-color:rgba(0,200,83,0.45);box-shadow:var(--glow);}
+  .auth-input::placeholder{color:var(--muted);}
+
+  .auth-submit {
+    width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;
+    background:var(--accent);color:#06090f;
+    font-weight:700;font-size:0.9rem;font-family:'DM Sans',sans-serif;
+    transition:all 0.2s;margin-top:2px;
+  }
+  .auth-submit:hover{background:#00e05c;transform:translateY(-1px);}
+  .auth-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+  .auth-toggle{text-align:center;margin-top:14px;font-size:0.8rem;color:var(--muted);}
+  .auth-toggle button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.8rem;font-family:'DM Sans',sans-serif;font-weight:600;}
+
+  .auth-msg{text-align:center;font-size:0.75rem;margin-top:10px;min-height:18px;font-family:'Space Mono',monospace;}
+  .auth-msg.error{color:var(--danger);}
+  .auth-msg.success{color:var(--success);}
+
+  .auth-feats{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:7px;}
+  .auth-feat{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted);}
+  .auth-feat-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+  /* ── TRIAL / PAYMENT BAR ── */
+  .trial-bar {
+    display:flex;align-items:center;gap:10px;
+    padding:5px 14px;background:rgba(0,200,83,0.06);
+    border-bottom:1px solid var(--border);
+    font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);
+    position:relative;z-index:10;
+  }
+  .trial-track{flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+  .trial-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s;}
+  #trialCount{color:var(--accent);font-weight:700;white-space:nowrap;}
+  .upgrade-btn-small {
+    padding:4px 12px;border-radius:6px;border:none;cursor:pointer;
+    background:var(--accent);color:#06090f;font-size:10px;
+    font-weight:700;font-family:'Space Mono',monospace;letter-spacing:0.05em;
+    transition:all 0.15s;white-space:nowrap;
+  }
+  .upgrade-btn-small:hover{background:#00e05c;}
+
+  /* ── PAYMENT MODAL ── */
+  .pay-overlay{
+    position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.75);
+    backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;
+    animation:fadeUp 0.2s ease;
+  }
+  .pay-overlay.hide{display:none;}
+  .pay-modal{
+    background:var(--surface);border:1px solid rgba(0,200,83,0.3);
+    border-radius:18px;padding:36px;max-width:420px;width:92%;
+    box-shadow:0 0 60px rgba(0,200,83,0.1);
+    animation:fadeUp 0.3s ease;position:relative;
+  }
+  .pay-modal-close{
+    position:absolute;top:12px;right:12px;
+    width:28px;height:28px;border-radius:7px;border:none;
+    background:rgba(255,255,255,0.06);color:var(--muted);cursor:pointer;font-size:0.9rem;
+  }
+  .pay-icon{font-size:2rem;margin-bottom:12px;}
+  .pay-modal h2{font-family:'Space Mono',monospace;font-size:1.1rem;color:var(--accent);margin-bottom:6px;}
+  .pay-modal p{font-size:0.84rem;color:var(--muted);line-height:1.55;margin-bottom:20px;}
+  .pay-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .pay-price{font-family:'Space Mono',monospace;font-size:2.2rem;color:var(--accent);}
+  .pay-old{font-size:0.95rem;color:var(--muted);text-decoration:line-through;}
+  .pay-once{font-size:0.7rem;font-family:'Space Mono',monospace;color:var(--muted);margin-bottom:20px;letter-spacing:0.05em;}
+  .pay-feats{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+  .pay-feat{display:flex;align-items:center;gap:9px;font-size:0.83rem;color:var(--muted);}
+  .pay-check{color:var(--accent);}
+  .pay-btn{
+    width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;
+    background:var(--accent);color:#06090f;font-weight:700;font-size:0.95rem;
+    font-family:'DM Sans',sans-serif;transition:all 0.2s;
+  }
+  .pay-btn:hover{background:#00e05c;transform:translateY(-1px);}
+  .pay-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .pay-note{text-align:center;font-size:0.68rem;color:var(--muted);margin-top:10px;font-family:'Space Mono',monospace;}
+
+  /* user pill in header */
+  .user-pill{
+    display:flex;align-items:center;gap:6px;
+    padding:4px 10px 4px 7px;border-radius:20px;
+    border:1px solid var(--border);background:var(--surface);
+    font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);
+  }
+  .user-av{
+    width:20px;height:20px;border-radius:50%;
+    background:rgba(0,200,83,0.2);border:1px solid rgba(0,200,83,0.4);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.6rem;color:var(--accent);font-weight:700;
+  }
+  .signout-btn{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    font-size:10px;font-family:'Space Mono',monospace;padding:4px 10px;
+    border-radius:6px;cursor:pointer;transition:all 0.15s;
+  }
+  .signout-btn:hover{border-color:rgba(255,77,109,0.4);color:var(--danger);}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(6,9,15,0.3);border-top-color:#06090f;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
 </head>
 <body>
+
+<!-- ── AUTH SCREEN ── -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo-row">
+      <div class="auth-logo-icon">⚡</div>
+      <div class="auth-logo-text">ECE_TUTOR</div>
+    </div>
+    <div class="auth-college">DRIEMS POLYTECHNIC · AI-POWERED LEARNING</div>
+    <div class="auth-title">SIGN IN TO CONTINUE</div>
+    <p class="auth-sub">Access <strong>27 engineering subjects</strong> with AI-powered step-by-step tutoring. Works on any device after login.</p>
+    <button class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
+      <svg class="g-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider"><span>or use email</span></div>
+    <input class="auth-input" type="email" id="authEmail" placeholder="your@email.com" />
+    <input class="auth-input" type="password" id="authPassword" placeholder="Password" onkeydown="if(event.key==='Enter')submitEmail()" />
+    <button class="auth-submit" id="emailSubmitBtn" onclick="submitEmail()">Sign In</button>
+    <div class="auth-toggle">No account? <button onclick="toggleAuthMode()">Sign Up Free</button></div>
+    <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-feats">
+      <div class="auth-feat"><div class="auth-feat-dot"></div>3 free questions — no payment needed to try</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>₹999 one-time for lifetime unlimited access</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Login from any phone or laptop — access follows you</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYMENT MODAL ── -->
+<div class="pay-overlay hide" id="payModal">
+  <div class="pay-modal">
+    <button class="pay-modal-close" onclick="closePayModal()">✕</button>
+    <div class="pay-icon">⚡</div>
+    <h2>UNLOCK LIFETIME ACCESS</h2>
+    <p>One payment. Study forever. All 27 subjects, voice input, image analysis — on any device.</p>
+    <div class="pay-price-row">
+      <div class="pay-price">₹999</div>
+      <div class="pay-old">₹1,999</div>
+    </div>
+    <div class="pay-once">ONE-TIME PAYMENT · NO SUBSCRIPTION</div>
+    <div class="pay-feats">
+      <div class="pay-feat"><span class="pay-check">✓</span> Unlimited questions — forever</div>
+      <div class="pay-feat"><span class="pay-check">✓</span> All 27 subjects unlocked</div>
+      <div class="pay-feat"><span class="pay-check">✓</span> Voice input &amp; image analysis</div>
+      <div class="pay-feat"><span class="pay-check">✓</span> Access from any phone or laptop</div>
+      <div class="pay-feat"><span class="pay-check">✓</span> Instant activation after payment</div>
+    </div>
+    <button class="pay-btn" id="payBtn" onclick="handlePurchase()">⚡ Pay ₹999 via Razorpay</button>
+    <div class="pay-note">Secure · UPI · Cards · Net Banking · Wallets</div>
+  </div>
+</div>
 
 <!-- DRIEMS College Header -->
 <div class="college-header">
@@ -369,11 +588,25 @@
       <div class="logo-sub">AI-POWERED LEARNING</div>
     </div>
   </div>
-  <div class="status-pill">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">IDLE</span>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="user-pill" id="userPill">
+      <div class="user-av" id="userInitial">?</div>
+      <span id="userEmailDisplay">...</span>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">IDLE</span>
+    </div>
+    <button class="signout-btn" onclick="signOut()">SIGN OUT</button>
   </div>
 </header>
+
+<!-- Trial Bar -->
+<div class="trial-bar" id="trialBar">
+  <span id="trialCount">3 QUESTIONS LEFT</span>
+  <div class="trial-track"><div class="trial-fill" id="trialFill" style="width:100%"></div></div>
+  <button class="upgrade-btn-small" onclick="openPayModal()">⚡ UNLOCK UNLIMITED</button>
+</div>
 
 <div class="main">
   <!-- Sidebar -->
@@ -482,8 +715,26 @@
 <div id="toast"></div>
 
 <script>
-const API_BASE = '';
+// ── Supabase ──────────────────────────────────────────
+const SUPABASE_URL  = 'https://ikvakmaqiiehzqskghqv.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrdmFrbWFxaWllaHpxc2tnaHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDcxMjksImV4cCI6MjA4OTY4MzEyOX0.VIHommNwjv9RDb8ApcCvOBeC6enncK4iMLLfIf2MPME';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ── State ─────────────────────────────────────────────
+const API_BASE = '';
+let currentTopic        = 'Basic Electronics';
+let isRecording         = false;
+let recognition         = null;
+let speechSynth         = window.speechSynthesis;
+let currentUtterance    = null;
+let conversationHistory = [];
+let pendingImageBase64  = null;
+let currentUser         = null;
+let purchased           = false;
+let trialLeft           = 3;
+let authMode            = 'signin';
+
+// ── Topics ────────────────────────────────────────────
 const TOPICS = {
   'Basic Electronics':                ['What is Ohm\'s law?','Explain PN junction diode','What is Kirchhoff\'s law?'],
   'Electronic Components & Materials':['Types of resistors','What is a capacitor?','Explain semiconductor materials'],
@@ -514,14 +765,171 @@ const TOPICS = {
   'Entrepreneurship Development':     ['What is entrepreneurship?','Explain business plan','What is market analysis?']
 };
 
-let currentTopic = 'Basic Electronics';
-let isRecording  = false;
-let recognition  = null;
-let speechSynth  = window.speechSynthesis;
-let currentUtterance   = null;
-let conversationHistory = [];
-let pendingImageBase64  = null;
+// ── Auth functions ────────────────────────────────────
+async function signInWithGoogle() {
+  const btn = document.getElementById('googleBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Connecting...';
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) {
+    showAuthMsg(error.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="g-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google';
+  }
+}
 
+function toggleAuthMode() {
+  authMode = authMode === 'signin' ? 'signup' : 'signin';
+  const isSignup = authMode === 'signup';
+  document.getElementById('emailSubmitBtn').textContent = isSignup ? 'Create Account' : 'Sign In';
+  document.querySelector('.auth-toggle').innerHTML = isSignup
+    ? 'Already have an account? <button onclick="toggleAuthMode()">Sign In</button>'
+    : 'No account? <button onclick="toggleAuthMode()">Sign Up Free</button>';
+  showAuthMsg('', '');
+}
+
+async function submitEmail() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn      = document.getElementById('emailSubmitBtn');
+  if (!email || !password) { showAuthMsg('Please enter email and password.', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  let result;
+  if (authMode === 'signup') {
+    result = await sb.auth.signUp({ email, password });
+    if (!result.error && result.data.user && !result.data.session) {
+      showAuthMsg('✓ Check your email to confirm your account!', 'success');
+      btn.disabled = false; btn.textContent = 'Create Account'; return;
+    }
+  } else {
+    result = await sb.auth.signInWithPassword({ email, password });
+  }
+  if (result.error) {
+    showAuthMsg(result.error.message, 'error');
+    btn.disabled = false;
+    btn.textContent = authMode === 'signup' ? 'Create Account' : 'Sign In';
+  }
+}
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('authMsg');
+  el.textContent = msg; el.className = 'auth-msg ' + (type||'');
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null; purchased = false; trialLeft = 3;
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+// ── Check payment in Supabase ─────────────────────────
+async function checkPayment(userId) {
+  const { data } = await sb.from('payments').select('id').eq('user_id', userId).limit(1);
+  return data && data.length > 0;
+}
+
+// ── Auth state listener ───────────────────────────────
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session && session.user) {
+    currentUser = session.user;
+    document.getElementById('authScreen').style.display = 'none';
+    // Show user info in header
+    const email = currentUser.email || '';
+    document.getElementById('userInitial').textContent = email.charAt(0).toUpperCase();
+    document.getElementById('userEmailDisplay').textContent = email.length > 22 ? email.slice(0,20)+'...' : email;
+    // Check if already paid
+    const hasPaid = await checkPayment(currentUser.id);
+    if (hasPaid) activateFullAccess(false);
+    else updateTrialUI();
+  } else {
+    document.getElementById('authScreen').style.display = 'flex';
+  }
+});
+
+// ── Trial UI ──────────────────────────────────────────
+function updateTrialUI() {
+  const pct = (trialLeft / 3) * 100;
+  document.getElementById('trialFill').style.width = pct + '%';
+  document.getElementById('trialCount').textContent = trialLeft + ' QUESTION' + (trialLeft !== 1 ? 'S' : '') + ' LEFT';
+  document.getElementById('trialBar').style.display = 'flex';
+}
+
+function activateFullAccess(showMsg = true) {
+  purchased = true;
+  const bar = document.getElementById('trialBar');
+  bar.innerHTML = '<span style="color:var(--accent);">⚡</span><span style="color:var(--accent);font-weight:700;">LIFETIME ACCESS ACTIVE — UNLIMITED QUESTIONS</span>';
+  bar.style.background = 'rgba(0,200,83,0.08)';
+  closePayModal();
+  if (showMsg) {
+    addMessage('ai', '🎉 Payment successful! You now have UNLIMITED lifetime access to all 27 subjects — on every device. Ask me anything!');
+  }
+}
+
+// ── Payment Modal ─────────────────────────────────────
+function openPayModal()  { if (currentUser) document.getElementById('payModal').classList.remove('hide'); }
+function closePayModal() { document.getElementById('payModal').classList.add('hide'); }
+
+async function handlePurchase() {
+  if (!currentUser) return;
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Opening...';
+
+  const options = {
+    key:         'rzp_live_STwdC1WSTenQks',
+    amount:      99900,
+    currency:    'INR',
+    name:        'DRIEMS AI Tutor',
+    description: 'Lifetime Access — All 27 ECE Subjects',
+    prefill:     { email: currentUser.email || '' },
+    theme:       { color: '#00c853' },
+    handler: async function(response) {
+      // Save to Supabase
+      await sb.from('payments').insert({
+        user_id:             currentUser.id,
+        email:               currentUser.email,
+        razorpay_payment_id: response.razorpay_payment_id
+      });
+      activateFullAccess(true);
+    },
+    modal: {
+      ondismiss: function() {
+        btn.disabled = false;
+        btn.textContent = '⚡ Pay ₹999 via Razorpay';
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.on('payment.failed', function(r) {
+    alert('Payment failed: ' + r.error.description);
+    btn.disabled = false;
+    btn.textContent = '⚡ Pay ₹999 via Razorpay';
+  });
+  rzp.open();
+}
+
+// ── Guard: check trial before sending ─────────────────
+function checkTrialGuard() {
+  if (purchased) return true;
+  if (trialLeft <= 0) { openPayModal(); return false; }
+  return true;
+}
+
+function consumeTrial() {
+  if (!purchased) {
+    trialLeft--;
+    updateTrialUI();
+    if (trialLeft <= 0) setTimeout(openPayModal, 2000);
+  }
+}
+
+// ── UI helpers ────────────────────────────────────────
 function showToast(msg, duration=3500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
@@ -536,7 +944,6 @@ function setTopic(btn, topic) {
   document.getElementById('topicLabel').textContent = 'TOPIC: ' + topic.toUpperCase();
   updateQuickPrompts();
   addMessage('ai', `Switched to ${topic}. What would you like to learn?`);
-  // no speak() on topic switch
 }
 
 function updateQuickPrompts() {
@@ -561,11 +968,10 @@ function addMessage(role, text, isLoading=false, imageDataUrl=null) {
     bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
     div.id = 'loadingMsg';
   } else {
-    // Strip markdown symbols then format bold/code for display
     let cleaned = text
-      .replace(/#{1,6}\s*/g, '')          // remove ## headings
+      .replace(/#{1,6}\s*/g, '')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '$1')         // remove single * italic markers
+      .replace(/\*(.*?)\*/g, '$1')
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\n/g, '<br>');
     bubble.innerHTML = cleaned;
@@ -615,6 +1021,7 @@ function clearImage() {
 async function sendText(text) { document.getElementById('textInput').value=text; sendMessage(); }
 
 async function sendMessage() {
+  if (!checkTrialGuard()) return;
   const input=document.getElementById('textInput');
   const text=input.value.trim();
   if (!text && !pendingImageBase64) return;
@@ -622,6 +1029,7 @@ async function sendMessage() {
   const imageSnap=pendingImageBase64;
   input.value=''; input.style.height='auto';
   if (imageSnap) clearImage();
+  consumeTrial();
   await processMessage(userText, imageSnap);
 }
 
@@ -644,7 +1052,6 @@ async function processMessage(userText, imageBase64=null) {
     removeLoading();
     conversationHistory.push({role:'assistant',content:reply});
     addMessage('ai', reply);
-    // Text queries → display only, no voice readout
   } catch(err) {
     removeLoading();
     addMessage('ai',`⚠️ ${err.message}`);
@@ -672,6 +1079,7 @@ function speak(text) {
 }
 
 function toggleMic() {
+  if (!checkTrialGuard()) return;
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { showToast('Use Chrome for voice input.'); return; }
   if (isRecording) { recognition?.stop(); return; }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -681,6 +1089,7 @@ function toggleMic() {
   recognition.onresult = e => {
     const transcript = e.results[0][0].transcript;
     document.getElementById('textInput').value = transcript;
+    consumeTrial();
     processVoiceMessage(transcript);
   };
   recognition.onerror = () => { isRecording=false; document.getElementById('micBtn').classList.remove('recording'); setStatus(''); };
@@ -707,13 +1116,9 @@ async function processVoiceMessage(transcript) {
     removeLoading();
     conversationHistory.push({role:'assistant',content:reply});
     addMessage('ai', reply);
-    // Voice query → read the reply aloud (strip all markdown symbols for clean speech)
     const spokenText = reply
-      .replace(/#{1,6}\s*/g,'')
-      .replace(/\*\*(.*?)\*\*/g,'$1')
-      .replace(/\*(.*?)\*/g,'$1')
-      .replace(/`([^`]+)`/g,'$1')
-      .replace(/\n/g,' ');
+      .replace(/#{1,6}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'$1')
+      .replace(/\*(.*?)\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/\n/g,' ');
     speak(spokenText);
   } catch(err) {
     removeLoading(); addMessage('ai',`⚠️ ${err.message}`); showToast(err.message);
